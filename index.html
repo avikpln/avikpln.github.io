@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avi Kaplan</title>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:  #0B1F3A;
+      --gold:  #C9A84C;
+      --gold2: #E8C96A;
+      --white: #F0EDE6;
+      --muted: #8899AA;
+      --link:  #7EB8D4;
+      --border: #1A2E44;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--navy);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 72px 24px 56px;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    #graph-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.18;
+      pointer-events: none;
+    }
+
+    .hero-content { position: relative; z-index: 1; }
+
+    .photo-wrap {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid var(--gold);
+      margin: 0 auto 20px;
+    }
+    .photo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .name-location {
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(1.8rem, 4vw, 2.4rem);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--white);
+      line-height: 1.2;
+    }
+
+    .name-location .separator {
+      color: var(--muted);
+      font-weight: 300;
+      margin: 0 10px;
+    }
+
+    .name-location .location {
+      font-size: clamp(1rem, 2.2vw, 1.3rem);
+      font-weight: 400;
+      color: var(--muted);
+    }
+
+    .tagline {
+      margin-top: 8px;
+      font-size: clamp(0.78rem, 1.8vw, 0.88rem);
+      font-weight: 400;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .math-note {
+      margin-top: 12px;
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(0.95rem, 2vw, 1.05rem);
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    /* ── CONTACT LINKS ── */
+    .contact-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px 16px;
+      margin-top: 28px;
+    }
+
+    .contact-links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--link);
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      padding: 5px 12px;
+      border: 1px solid #1E3A5A;
+      border-radius: 4px;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .contact-links a:hover { border-color: var(--gold); color: var(--gold2); }
+
+    .contact-label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      width: 48px;
+      height: 1px;
+      background: var(--gold);
+      margin: 48px auto;
+      opacity: 0.5;
+    }
+
+    /* ── TWO-COLUMN LAYOUT ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-areas: "projects publications";
+      gap: 48px;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 32px 80px;
+      align-items: start;
+    }
+
+    .col-projects    { grid-area: projects; }
+    .col-publications { grid-area: publications; }
+
+    @media (max-width: 700px) {
+      .two-col {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "projects"
+          "publications";
+        padding: 0 20px 60px;
+        gap: 40px;
+      }
+    }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 20px;
+    }
+
+    /* ── PROJECT GROUPS ── */
+    .project-group { margin-bottom: 36px; }
+
+    .group-title {
+      font-family: 'EB Garamond', serif;
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: var(--white);
+      margin-bottom: 4px;
+    }
+
+    .group-subtitle {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .project-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .project-card:first-of-type { border-top: 1px solid var(--border); }
+
+    .project-name {
+      font-size: 0.88rem;
+      font-weight: 400;
+      color: var(--white);
+    }
+
+    .project-desc {
+      font-size: 0.76rem;
+      color: var(--muted);
+      margin-top: 3px;
+      line-height: 1.5;
+    }
+
+    .project-links {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+      margin-left: 12px;
+    }
+
+    .project-links a {
+      font-size: 0.76rem;
+      color: var(--link);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .project-links a:hover { color: var(--gold2); }
+
+    /* ── PUBLICATIONS ── */
+    .pub-entry {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      line-height: 1.6;
+    }
+    .pub-entry:first-of-type { border-top: 1px solid var(--border); }
+
+    .pub-title {
+      font-size: 0.86rem;
+      font-weight: 400;
+      color: var(--white);
+      line-height: 1.4;
+    }
+
+    .pub-authors {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .pub-authors strong {
+      color: var(--gold);
+      font-weight: 400;
+    }
+
+    .pub-venue {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-style: italic;
+      margin-top: 2px;
+    }
+
+    .scholar-link {
+      display: inline-block;
+      margin-top: 16px;
+      font-size: 0.78rem;
+      color: var(--link);
+      text-decoration: none;
+    }
+    .scholar-link:hover { color: var(--gold2); }
+
+    @media (prefers-reduced-motion: reduce) {
+      #graph-canvas { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<section class="hero">
+  <canvas id="graph-canvas"></canvas>
+  <div class="hero-content">
+    <div class="photo-wrap">
+      <img src="photo.jpg" alt="Avi Kaplan">
+    </div>
+    <div class="name-location">
+      Avi Kaplan
+      <span class="separator">·</span>
+      <span class="location">📍 Prague, Czech Republic</span>
+    </div>
+    <p class="tagline">Mathematician &nbsp;·&nbsp; PhD in CS &nbsp;·&nbsp; ML Engineer</p>
+    <p class="math-note">Exploring mathematics—from ancient calculus to modern machine learning</p>
+
+    <div class="contact-links">
+      <a href="mailto:savik751@gmail.com">
+        <span class="contact-label">EMAIL</span>
+        savik751@gmail.com
+      </a>
+      <a href="https://github.com/avikpln" target="_blank" rel="noopener noreferrer">
+        <span class="contact-label">GITHUB</span>
+        avikpln
+      </a>
+      <a href="https://www.linkedin.com/in/avik3" target="_blank" rel="noopener noreferrer">
+        <span class="contact-label">LINKEDIN</span>
+        Avi Kaplan
+      </a>
+      <a href="https://scholar.google.com/citations?user=cAUJs6AAAAAJ&hl=cs" target="_blank" rel="noopener noreferrer">
+        <span class="contact-label">SCHOLAR</span>
+        Publications
+      </a>
+      <a href="https://drive.google.com/file/d/1CJmVE3pFp_Hv62RLGox3mZYn_A8WKZRv/view?usp=sharing" target="_blank" rel="noopener noreferrer">
+        <span class="contact-label">RESUME</span>
+        PDF
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<div class="two-col">
+
+  <!-- PROJECTS (left on desktop, first on mobile) -->
+  <div class="col-projects">
+    <p class="section-label">Projects</p>
+
+    <div class="project-group">
+      <h2 class="group-title">Machine Learning</h2>
+      <div class="project-card">
+        <div>
+          <div class="project-name">Titanic EDA</div>
+          <div class="project-desc">Exploratory data analysis — IBM ML Specialization final project.</div>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/avikpln/titanic-eda" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="project-group">
+      <h2 class="group-title">Graph-Based Memory Game</h2>
+      <div class="project-card">
+        <div>
+          <div class="project-name">Rooms & Doors</div>
+          <div class="project-desc">Browser-based version with enhanced graphics.</div>
+        </div>
+        <div class="project-links">
+          <a href="https://avikpln.github.io/rad/" target="_blank" rel="noopener noreferrer">Live</a>
+          <a href="https://github.com/avikpln/rad" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+      </div>
+      <div class="project-card">
+        <div>
+          <div class="project-name">RAD Game</div>
+          <div class="project-desc">Original Python desktop version with graph algorithms.</div>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/avikpln/radgame" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="project-group">
+      <h2 class="group-title">Game GUI Framework</h2>
+      <p class="group-subtitle">A modular JavaScript framework for browser-based games — use as a GitHub template to build your own.</p>
+      <div class="project-card">
+        <div>
+          <div class="project-name">Framework</div>
+          <div class="project-desc">Game loop, state management, and canvas rendering.</div>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/avikpln/game-gui-framework" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+      </div>
+      <div class="project-card">
+        <div>
+          <div class="project-name">Snake</div>
+          <div class="project-desc">The classic Snake game.</div>
+        </div>
+        <div class="project-links">
+          <a href="https://avikpln.github.io/snake/" target="_blank" rel="noopener noreferrer">Live</a>
+          <a href="https://github.com/avikpln/snake" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+      </div>
+      <div class="project-card">
+        <div>
+          <div class="project-name">Cyclic Tag</div>
+          <div class="project-desc">A 3-player pursuit-evasion game.</div>
+        </div>
+        <div class="project-links">
+          <a href="https://avikpln.github.io/cyclic-tag/" target="_blank" rel="noopener noreferrer">Live</a>
+          <a href="https://github.com/avikpln/cyclic-tag" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="project-group">
+      <h2 class="group-title">Countries</h2>
+      <div class="project-card">
+        <div>
+          <div class="project-name">195 Countries</div>
+          <div class="project-desc">A browsable reference page built two ways: a Python static generator and a JavaScript dynamic version.</div>
+        </div>
+        <div class="project-links">
+          <a href="https://avikpln.github.io/countries/" target="_blank" rel="noopener noreferrer">Live</a>
+          <a href="https://github.com/avikpln/countries" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PUBLICATIONS (right on desktop, second on mobile) -->
+  <div class="col-publications">
+    <p class="section-label">Publications</p>
+
+    <div class="pub-entry">
+      <div class="pub-title">Limits of Preprocessing</div>
+      <div class="pub-authors">Yuval Filmus, Yuval Ishai, <strong>Avi Kaplan</strong>, Guy Kindler</div>
+      <div class="pub-venue">Computational Complexity, vol. 33, article 5 (2024)</div>
+    </div>
+
+    <div class="pub-entry">
+      <div class="pub-title">Bounded Simultaneous Messages</div>
+      <div class="pub-authors">Andrej Bogdanov, Krishnamoorthy Dinesh, Yuval Filmus, Yuval Ishai, <strong>Avi Kaplan</strong>, Sruthi Sekar</div>
+      <div class="pub-venue">FSTTCS 2023: 23:1–23:17</div>
+    </div>
+
+    <div class="pub-entry">
+      <div class="pub-title">Bounded Indistinguishability for Simple Sources</div>
+      <div class="pub-authors">Andrej Bogdanov, Krishnamoorthy Dinesh, Yuval Filmus, Yuval Ishai, <strong>Avi Kaplan</strong>, Akshayaram Srinivasan</div>
+      <div class="pub-venue">ITCS 2022: 26:1–26:18</div>
+    </div>
+
+    <div class="pub-entry">
+      <div class="pub-title">Limits of Preprocessing</div>
+      <div class="pub-authors">Yuval Filmus, Yuval Ishai, <strong>Avi Kaplan</strong>, Guy Kindler</div>
+      <div class="pub-venue">CCC 2020: 17:1–17:20</div>
+    </div>
+
+    <div class="pub-entry">
+      <div class="pub-title">Personal Recommendations for Raising Social Eminence in an Enterprise</div>
+      <div class="pub-authors">Shiri Kremer-Davidson, Inbal Ronen, Lior Leiba, <strong>Avi Kaplan</strong>, Maya Barnea</div>
+      <div class="pub-venue">IUI 2018: 629–639</div>
+    </div>
+
+    <div class="pub-entry">
+      <div class="pub-title">Personal Social Dashboard: A Tool for Measuring Your Social Engagement Effectiveness in the Enterprise</div>
+      <div class="pub-authors">Shiri Kremer-Davidson, Inbal Ronen, <strong>Avi Kaplan</strong>, Maya Barnea</div>
+      <div class="pub-venue">UMAP 2017: 122–130</div>
+    </div>
+
+    <div class="pub-entry">
+      <div class="pub-title">Raising your Eminence inside the Enterprise Social Network</div>
+      <div class="pub-authors">Shiri Kremer-Davidson, Inbal Ronen, Lior Leiba, <strong>Avi Kaplan</strong>, Maya Barnea</div>
+      <div class="pub-venue">GROUP 2016: 111–120</div>
+    </div>
+
+    <div class="pub-entry">
+      <div class="pub-title">Interpreting the Ratio Criterion for Matching SIFT Descriptors</div>
+      <div class="pub-authors"><strong>Avi Kaplan</strong>, Tamar Avraham, Michael Lindenbaum</div>
+      <div class="pub-venue">ECCV 2016 (5): 697–712</div>
+    </div>
+
+    <div class="pub-entry">
+      <div class="pub-title">Implementation Specific Verification of Divide and Square Root Instructions</div>
+      <div class="pub-authors">Elena Guralnik, Ariel J. Birnbaum, Anatoly Koyfman, <strong>Avi Kaplan</strong></div>
+      <div class="pub-venue">IEEE Symposium on Computer Arithmetic 2009: 114–121</div>
+    </div>
+
+    <a class="scholar-link" href="https://scholar.google.com/citations?user=cAUJs6AAAAAJ&hl=cs" target="_blank" rel="noopener noreferrer">
+      → View all on Google Scholar
+    </a>
+  </div>
+
+</div>
+
+<script>
+  const canvas = document.getElementById('graph-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, nodes, edges;
+
+  function resize() {
+    const hero = canvas.parentElement;
+    W = canvas.width  = hero.offsetWidth;
+    H = canvas.height = hero.offsetHeight;
+  }
+
+  function initGraph() {
+    const count = Math.floor((W * H) / 18000) + 8;
+    nodes = Array.from({ length: count }, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+    }));
+    rebuildEdges();
+  }
+
+  function rebuildEdges() {
+    const threshold = Math.min(W, H) * 0.28;
+    edges = [];
+    for (let i = 0; i < nodes.length; i++)
+      for (let j = i + 1; j < nodes.length; j++) {
+        const dx = nodes[i].x - nodes[j].x;
+        const dy = nodes[i].y - nodes[j].y;
+        if (Math.sqrt(dx*dx + dy*dy) < threshold) edges.push([i, j]);
+      }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.strokeStyle = '#C9A84C';
+    ctx.lineWidth = 0.6;
+    for (const [i, j] of edges) {
+      ctx.beginPath();
+      ctx.moveTo(nodes[i].x, nodes[i].y);
+      ctx.lineTo(nodes[j].x, nodes[j].y);
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#7EB8D4';
+    for (const n of nodes) {
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    for (const n of nodes) {
+      n.x += n.vx; n.y += n.vy;
+      if (n.x < 0 || n.x > W) n.vx *= -1;
+      if (n.y < 0 || n.y > H) n.vy *= -1;
+    }
+    rebuildEdges();
+    requestAnimationFrame(draw);
+  }
+
+  resize();
+  initGraph();
+  draw();
+  window.addEventListener('resize', () => { resize(); initGraph(); });
+</script>
+
+</body>
+</html>
